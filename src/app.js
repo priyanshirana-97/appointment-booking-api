@@ -11,6 +11,9 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
+app.get("/",()=>{
+    message:"Yeah working"
+})
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 
