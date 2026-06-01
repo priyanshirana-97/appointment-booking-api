@@ -9,7 +9,7 @@ const {
 
 const {
     validateRegister
-} = require("../../middleware/validationMiddleware")
+} = require("../middleware/validateMiddleware")
 
 router.post(
     "/register",
