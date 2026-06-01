@@ -1,15 +1,41 @@
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken")
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+const protect = (req, res, next) => {
 
-  if (!token) return res.status(401).json({ message: "No token" });
+    let token
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+    ) {
 
-  req.user = decoded;
+        token = req.headers.authorization.split(" ")[1]
 
-  next();
-};
+        try {
 
-module.exports = authMiddleware;
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_SECRET
+            )
+
+            req.user = decoded
+
+            next()
+
+        } catch (error) {
+
+            res.status(401).json({
+                message: "Token Failed"
+            })
+        }
+
+    }
+
+    if (!token) {
+        res.status(401).json({
+            message: "No Token"
+        })
+    }
+}
+
+module.exports = protect

@@ -1,13 +1,38 @@
-require("dotenv").config();
-const app = require("./src/app");
-const connectDB = require("./src/config/db");
+const express = require("express")
+const dotenv = require("dotenv")
+const cors = require("cors")
+const morgan = require("morgan")
 
-connectDB();
+const connectDB = require("./config/db")
+
+const errorHandler = require("./middleware/errorMiddleware")
+
+dotenv.config()
+
+connectDB()
+
+const app = express()
+
+app.use(express.json())
+
+app.use(cors())
+
+app.use(morgan("dev"))
 
 app.get("/", (req, res) => {
-  res.json({ message: "Appointment Booking API is running" });
-});
+    res.send("API Running Successfully")
+})
 
-app.listen(process.env.PORT, () => {
-  console.log("Server running");
-});
+app.use("/api/auth", require("./routes/authRoutes"))
+
+app.use("/api/doctors", require("./routes/doctorRoutes"))
+
+app.use("/api/appointments", require("./routes/appointmentRoutes"))
+
+app.use(errorHandler)
+
+const PORT = process.env.PORT || 5000
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+})

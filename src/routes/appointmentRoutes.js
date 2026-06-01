@@ -1,16 +1,16 @@
-const express = require("express");
-const router = express.Router();
+const express = require("express")
 
-const auth = require("../middleware/authMiddleware");
+const router = express.Router()
 
 const {
-  bookAppointment,
-  getAppointments,
-  deleteAppointment
-} = require("../controllers/appointmentController");
+    bookAppointment,
+    getAppointments
+} = require("../controllers/appointmentController")
 
-router.post("/book", auth, bookAppointment);
-router.get("/", auth, getAppointments);
-router.delete("/:id", auth, deleteAppointment);
+const protect = require("../middleware/authMiddleware")
 
-module.exports = router;
+router.post("/", protect, bookAppointment)
+
+router.get("/", protect, getAppointments)
+
+module.exports = router

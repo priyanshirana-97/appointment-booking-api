@@ -1,30 +1,54 @@
-const Appointment = require("../models/Appointment");
+const Appointment = require("../models/Appointment")
 
 exports.bookAppointment = async (req, res) => {
-  const { doctorName, date, time } = req.body;
 
-  const exists = await Appointment.findOne({ doctorName, date, time });
+    try {
 
-  if (exists) {
-    return res.status(400).json({ message: "Slot already booked" });
-  }
+        const appointment = await Appointment.create({
+            user: req.user.id,
+            doctor: req.body.doctor,
+            appointmentDate: req.body.appointmentDate
+        })
 
-  const appointment = await Appointment.create({
-    userId: req.user.id,
-    doctorName,
-    date,
-    time
-  });
+        res.status(201).json({
+            success: true,
+            appointment
+        })
 
-  res.json(appointment);
-};
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
 
 exports.getAppointments = async (req, res) => {
-  const data = await Appointment.find({ userId: req.user.id });
-  res.json(data);
-};
 
-exports.deleteAppointment = async (req, res) => {
-  await Appointment.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
-};
+    try {
+
+        let filter = {}
+
+        if (req.query.status) {
+            filter.status = req.query.status
+        }
+
+        const appointments = await Appointment.find(filter)
+            .populate("user", "name email")
+            .populate("doctor", "name specialization")
+            .sort({ createdAt: -1 })
+
+        res.status(200).json({
+            success: true,
+            appointments
+        })
+
+    } catch (error) {
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
